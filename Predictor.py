@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 import shap
 from lime.lime_tabular import LimeTabularExplainer
 
-df = pd.read_csv('AIS-Intravenous-Thrombolysis-x_test.csv')
+df = pd.read_csv('x_test.csv')
 x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
 
-model = joblib.load('stroke-TNY.pkl')
+model = joblib.load('AIS-Intravenous-Thrombolysis
+.pkl')
 
 feature_names = ['OCSP', 'NLR', 'epwv', 'admissionNHISS']
     
