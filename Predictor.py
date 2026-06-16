@@ -3,79 +3,74 @@ import joblib
 import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = ['WenQuanYi Micro Hei']
-plt.rcParams['axes.unicode_minus'] = False
 import shap
-
 from lime.lime_tabular import LimeTabularExplainer
-#pip install xgboost==2.0.3 --no-deps
-plt.rcParams['font.sans-serif'] = ['WenQuanYi Micro Hei', 'DejaVu Sans', 'SimHei', 'Arial Unicode MS']
-plt.rcParams['axes.unicode_minus'] = False
-df2 =pd.read_csv('stroke-TNY-x_test.csv')
-x_test = df2[['通脑饮', 'LAA', 'SAO', '年龄', '高血压', '吸烟史', '入院NIHSS', '入院mRS', 'NLR', '淋巴细胞', '尿素', '抗聚', '降压', '调脂']]
+
+df = pd.read_csv('AIS-Intravenous-Thrombolysis-x_test.csv')
+x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]]
 
 model = joblib.load('stroke-TNY.pkl')
 
-feature_names = ['TNY', 'LAA', 'SAO', 'AGE', 'Hypertension', 'Smoke', 'admissionNIHSS', 'admissionmRS', 'NLR', 'L', 'Bun', 'antiaggregation', 'antihypertensive', 'lipid_lowering']
-    
+feature_names = ['OCSP', 'NLR', 'epwv', 'admissionNHISS']
     
 # 设置 Streamlit 应用的标题
-st.title("卒中诊断模型")
+st.title("Prospective study with a 90-day follow-up")
 st.sidebar.header("Selection Panel") # 则边栏的标题
 st.sidebar.subheader("Picking up paraneters")
-TNY = st.selectbox("通脑饮", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-LAA = st.selectbox("LAA", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-SAO = st.selectbox("SAO", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
 
-AGE = st.number_input("年龄", min_value=0, max_value=120, value=1)
+admissionNHISS = st.number_input("admissionNHISS", min_value=0, max_value=42, value=1)
+#admissionNHISS = st.sidebar.slider("admissionNHISS", min_value=0, max_value=42, value=0, step=1)
+age = st.number_input("age", min_value=0, max_value=120, value=1)
+SBP = st.number_input("SBP", min_value=0, max_value=300, value=1)
+DBP = st.number_input("DBP", min_value=0, max_value=300, value=1)
+N = st.number_input("N", min_value=0, max_value=50, value=0.01)
+L = st.number_input("L", min_value=0, max_value=50, value=0.01)
 
-Hypertension = st.selectbox("高血压", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-Smoke = st.selectbox("吸烟史", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-
-NIHSS = st.number_input("入院NIHSS", min_value=0, max_value=42, value=0, step=1)
-mRS = st.number_input("入院mRS", min_value=0, max_value=42, value=0, step=1)
-N = st.number_input("中性粒细胞", min_value=0.01, max_value=50.00, value=0.01)
-L = st.number_input("淋巴细胞", min_value=0.01, max_value=50.00, value=0.01)
+OCSP = st.selectbox(
+    "OCSP",                      # 显示标签
+    ["TACI", "PACI", "POCI", "LACI"],    # 选项列表
+    index=0                              # 默认选中第一个（可选）
+)
+ocsp_mapping = {"TACI": 0, "PACI": 1, "POCI": 2, "LACI": 3}
+OCSP = ocsp_mapping[OCSP]
+MBP = DBP + 0.4*(SBP-DBP)
+ePWV = 9.587-0.402*age+4.56*0.001*age*age-2.621*0.00001*age*age*MBP+3.176*0.001*age*MBP-1.832*0.01*MBP
 NLR = N/L
-Bun = st.number_input("尿素", min_value=0, max_value=50, value=1)
-
-antiaggregation = st.selectbox("抗聚史", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-antihypertensive = st.selectbox("降压史", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
-lipid_lowering = st.selectbox("调脂史", options=[0, 1], format_func=lambda x:"是"if x == 1 else "否")
 
 
 
 
 
 
-feature_values = [TNY, LAA, SAO, AGE, Hypertension, Smoke, NIHSS, mRS, NLR, L, Bun, antiaggregation, antihypertensive, lipid_lowering]
+
+feature_values = [OCSP, NLR, epwv, admissionNHISS]
 features = np.array([feature_values])
 
 if st.button("Predict"):
     predicted_class = model.predict(features)[0]
     predicted_proba = model.predict_proba(features)[0]
-    st.write(f"**Predicted Class:** {predicted_class} (0: 不良结局低风险, 1: 不良结局高风险)")
+    st.write(f"**Predicted Class:** {predicted_class} (0: Good Prognosis, 1: Bad Prognosis)")
     st.write(f"**Predicted Probabilities:** {predicted_proba}")
     probability = predicted_proba[predicted_class] * 100
     # 如果预测类别为1（高风险）
     if predicted_class == 1:
         advice =(
-            f"根据我们的模型，该患者本次卒中预后不良的风险较高。 "
-            f"具体预后不良的可能性为 {probability:.1f}%，"
-            "建议进一步评估该患者的风险因素，针对性加强预防与治疗干预措施。"
+            f"According to our model, you have a high risk of Bad Prognosis.  "
+            f"The model predicts that your probability of having Bad Prognosis is {probability:.1f}%，"
+            "It's advised to consult with your healthcare provider for further evaluation and possible intervention."
         )
 
     # 如果预测类别为0（低风险）
     else:
         advice =(
-            f"根据我们的模型，该患者本次卒中预后良好的可能较高。"
-            f"具体预后良好的可能性为 {probability:.1f}%，"
-            "但继续保持健康的生活习惯仍是必要的，请定期至医院体检并规律服用药物。"
+            f"According to our model, you have a low risk of Bad Prognosis."
+            f"The model predicts that your probability of not having Good Prognosis is {probability:.1f}%，"
+            "However, maintaining a healthy lifestyle is important. Please continue regular check-ups with your healthcare provider."
         )
     # 显示建议
     st.write(advice)
     # SHAP 解释
-    st.subheader("SHAP 力图解释")
+    st.subheader("SHAP Force Plot Explanation")
     explainer = shap.TreeExplainer(model)
 
     # 将当前输入转换为 DataFrame（保留特征名）
@@ -108,3 +103,22 @@ if st.button("Predict"):
 
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     st.image("shap_force_plot.png", caption='SHAP Force Plot Explanation')
+    st.subheader("LIME Explanation")
+    
+    lime_explainer = LimeTabularExplainer(
+        training_data=x_test.values, 
+        feature_names=x_test.columns.tolist(),
+        class_names=['Good Prognosis', 'Bad Prognosis'],# Adjust class names to match your classification task
+        mode='classification'
+    )
+
+    #Explain the instance
+    lime_exp = lime_explainer.explain_instance(
+        data_row=features.flatten(),
+        predict_fn=model.predict_proba,
+        num_features=13
+    )
+
+    # Display the LIME explanation without the feature value table
+    lime_html = lime_exp.as_html(show_table=True) # Disable feature value table
+    st.components.v1.html(lime_html, height=800,scrolling=True)
