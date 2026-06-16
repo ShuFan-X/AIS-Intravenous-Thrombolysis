@@ -23,8 +23,8 @@ admissionNHISS = st.number_input("admissionNHISS", min_value=0, max_value=42, va
 age = st.number_input("age", min_value=0, max_value=120, value=1)
 SBP = st.number_input("SBP", min_value=0, max_value=300, value=1)
 DBP = st.number_input("DBP", min_value=0, max_value=300, value=1)
-N = st.number_input("N", min_value=0, max_value=50, value=0.01)
-L = st.number_input("L", min_value=0, max_value=50, value=0.01)
+N = st.number_input("N", min_value=0.0, max_value=50.0, value=0.01, step=0.01)
+L = st.number_input("L", min_value=0.0, max_value=50.0, value=0.01, step=0.01)
 
 OCSP = st.selectbox(
     "OCSP",                      # 显示标签
