@@ -7,19 +7,19 @@ import shap
 from lime.lime_tabular import LimeTabularExplainer
 
 df = pd.read_csv('x_test.csv')
-x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
+x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNIHSS']]
 
 model = joblib.load('AIS-Intravenous-Thrombolysis.pkl')
 
-feature_names = ['OCSP', 'NLR', 'epwv', 'admissionNHISS']
+feature_names = ['OCSP', 'NLR', 'epwv', 'admissionNIHSS']
     
 # 设置 Streamlit 应用的标题
 st.title("Prospective study with a 90-day follow-up")
 st.sidebar.header("Selection Panel") # 则边栏的标题
 st.sidebar.subheader("Picking up paraneters")
 
-admissionNHISS = st.number_input("admissionNHISS", min_value=0, max_value=42, value=1)
-#admissionNHISS = st.sidebar.slider("admissionNHISS", min_value=0, max_value=42, value=0, step=1)
+admissionNIHSS = st.number_input("admissionNIHSS", min_value=0, max_value=42, value=1)
+#admissionNIHSS = st.sidebar.slider("admissionNIHSS", min_value=0, max_value=42, value=0, step=1)
 age = st.number_input("age", min_value=0, max_value=120, value=1)
 SBP = st.number_input("SBP", min_value=0, max_value=300, value=1)
 DBP = st.number_input("DBP", min_value=0, max_value=300, value=1)
@@ -43,7 +43,7 @@ NLR = N/L
 
 
 
-feature_values = [OCSP, NLR, epwv, admissionNHISS]
+feature_values = [OCSP, NLR, epwv, admissionNIHSS]
 features = np.array([feature_values])
 
 if st.button("Predict"):
