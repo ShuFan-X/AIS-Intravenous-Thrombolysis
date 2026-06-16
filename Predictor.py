@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import shap
 from lime.lime_tabular import LimeTabularExplainer
 
-#df = pd.read_csv('x_test.csv')
-#x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
+df = pd.read_csv('x_test.csv')
+x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
 
 model = joblib.load('AIS-Intravenous-Thrombolysis.pkl')
 
