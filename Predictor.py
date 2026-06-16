@@ -7,7 +7,7 @@ import shap
 from lime.lime_tabular import LimeTabularExplainer
 
 df = pd.read_csv('AIS-Intravenous-Thrombolysis-x_test.csv')
-x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]]
+x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
 
 model = joblib.load('stroke-TNY.pkl')
 
