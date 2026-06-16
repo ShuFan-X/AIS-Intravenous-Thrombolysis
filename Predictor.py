@@ -31,7 +31,7 @@ OCSP = st.selectbox(
     ["TACI", "PACI", "POCI", "LACI"],    # 选项列表
     index=0                              # 默认选中第一个（可选）
 )
-ocsp_mapping = {"TACI": 0, "PACI": 1, "POCI": 2, "LACI": 3}
+ocsp_mapping = {"TACI": 1, "PACI": 2, "POCI": 3, "LACI": 4}
 OCSP = ocsp_mapping[OCSP]
 MBP = DBP + 0.4*(SBP-DBP)
 epwv = 9.587-0.402*age+4.56*0.001*age*age-2.621*0.00001*age*age*MBP+3.176*0.001*age*MBP-1.832*0.01*MBP
