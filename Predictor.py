@@ -9,8 +9,7 @@ from lime.lime_tabular import LimeTabularExplainer
 df = pd.read_csv('x_test.csv')
 x_test = df[['OCSP', 'NLR', 'epwv', 'admissionNHISS']]
 
-model = joblib.load('AIS-Intravenous-Thrombolysis
-.pkl')
+model = joblib.load('AIS-Intravenous-Thrombolysis.pkl')
 
 feature_names = ['OCSP', 'NLR', 'epwv', 'admissionNHISS']
     
